@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What's for Dinner?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400;1,6..96,700&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0D0B07;
+      --surface:   #181510;
+      --surface-2: #201D12;
+      --border:    rgba(196, 134, 40, 0.18);
+      --gold:      #C48628;
+      --gold-lt:   #DDA04A;
+      --cream:     #EDE5CF;
+      --dim:       #6E6654;
+      --protein:   #C07272;
+      --starch:    #B8965A;
+      --veggie:    #7EA880;
+      --special:   #9B8DD0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ambient candlelight glow */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 60%, rgba(196, 134, 40, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grain texture overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.25rem;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 0.6rem;
+    }
+
+    h1 {
+      font-family: 'Bodoni Moda', serif;
+      font-size: clamp(2rem, 5.5vw, 3rem);
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      line-height: 1;
+      color: var(--cream);
+    }
+
+    /* Thin gold rule below title */
+    .rule {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    .rule span {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .rule em {
+      font-style: normal;
+      font-size: 0.55rem;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* ── Dinner Card ── */
+    .dinner-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      width: min(460px, 94vw);
+      min-height: 290px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.25rem 2.5rem;
+      position: relative;
+    }
+
+    /* Corner bracket accents */
+    .dinner-card::before,
+    .dinner-card::after,
+    .corner-tl, .corner-br {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: var(--gold);
+      border-style: solid;
+    }
+    .dinner-card::before { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+    .dinner-card::after  { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+
+    .corner-br { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+    .corner-tl { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+    /* ── Combo Layout ── */
+    .combo-display {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .meal-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      padding: 1.1rem 0;
+    }
+
+    .meal-row:not(:last-child) {
+      border-bottom: 1px solid rgba(255,255,255,0.055);
+    }
+
+    .cat-label {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .meal-row.protein .cat-label { color: var(--protein); }
+    .meal-row.starch  .cat-label { color: var(--starch); }
+    .meal-row.veggie  .cat-label { color: var(--veggie); }
+
+    .meal-name {
+      font-family: 'Bodoni Moda', serif;
+      font-size: clamp(1.35rem, 3.8vw, 1.7rem);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--cream);
+      min-height: 1.5em;
+    }
+
+    /* ── Special / Other Layout ── */
+    .special-display {
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0;
+    }
+
+    .special-display .cat-label {
+      color: var(--special);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+
+    .special-display .meal-name {
+      font-size: clamp(1.8rem, 6vw, 2.4rem);
+      font-style: italic;
+      min-height: 1.3em;
+    }
+
+    /* ── Roll Animation ── */
+    @keyframes roll-in {
+      0%   { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .settled {
+      animation: roll-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .cycling {
+      color: var(--dim);
+      filter: blur(0.5px);
+    }
+
+    /* ── Button ── */
+    .roll-btn {
+      position: relative;
+      padding: 0.9rem 3rem;
+      background: transparent;
+      border: 1.5px solid var(--gold);
+      color: var(--gold-lt);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      cursor: pointer;
+      overflow: hidden;
+      transition: color 0.22s ease;
+    }
+
+    .roll-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold);
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 0;
+    }
+
+    .roll-btn:hover::after  { transform: scaleX(1); }
+    .roll-btn:hover         { color: var(--bg); }
+    .roll-btn:active        { transform: scale(0.97); }
+    .roll-btn:disabled      { opacity: 0.4; cursor: not-allowed; }
+
+    .roll-btn-text {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Footer ── */
+    footer {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <header>
+      <p class="eyebrow">Dine In · Tonight</p>
+      <h1>What's for Dinner?</h1>
+      <div class="rule">
+        <span></span>
+        <em>&#10022;</em>
+        <span></span>
+      </div>
+    </header>
+
+    <div class="dinner-card" id="dinnerCard" aria-live="polite" aria-label="Tonight's dinner">
+      <div class="corner-tl"></div>
+      <div class="corner-br"></div>
+      <!-- Content injected by JS -->
+    </div>
+
+    <button class="roll-btn" id="rollBtn" onclick="randomizeDinner()">
+      <span class="roll-btn-text">Roll the Dice</span>
+    </button>
+
+    <footer>A New Choice Every Night</footer>
+
+  </div>
+
+  <script>
+    const MENU = {
+      protein: [
+        "Chicken Cutlet","Chicken Breast","Beyond Burger",
+        "Ribs","Kabab","Hot Dog / Sausage","Salmon",
+        "Mussels","Falafel","Eggs"
+      ],
+      starch: [
+        "Mashed Potato","Gnocchi","Rice","Mac n' Cheese",
+        "Spaghetti","Pasta","Spaetzle","Tater Tots","Hash Browns"
+      ],
+      veggie: [
+        "Corn","Brown Beans","Black Beans",
+        "Lentils","Edamame","Carrot","Broccoli","Tabbouleh",
+        "Salad"
+      ],
+      other: [
+        "Taco / Burrito","Lasagna","Roast", "Chilli",
+        "Breakfast Dinner","Soup / Stew","Sloppy Joe"
+      ]
+    };
+
+    const OTHER_CHANCE = 0.10;
+    const CYCLE_DURATION = 650; // ms
+    const CYCLE_STEPS = 14;
+
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function randomizeDinner() {
+      const btn = document.getElementById('rollBtn');
+      const card = document.getElementById('dinnerCard');
+      btn.disabled = true;
+
+      if (Math.random() < OTHER_CHANCE) {
+        const meal = pick(MENU.other);
+        animateSpecial(card, meal, () => btn.disabled = false);
+      } else {
+        const choices = {
+          protein: pick(MENU.protein),
+          starch:  pick(MENU.starch),
+          veggie:  pick(MENU.veggie),
+        };
+        animateCombo(card, choices, () => btn.disabled = false);
+      }
+    }
+
+    function buildComboHTML(p, s, v) {
+      return `
+        <div class="combo-display">
+          <div class="meal-row protein">
+            <span class="cat-label">Protein</span>
+            <span class="meal-name" id="pName">${p}</span>
+          </div>
+          <div class="meal-row starch">
+            <span class="cat-label">Starch</span>
+            <span class="meal-name" id="sName">${s}</span>
+          </div>
+          <div class="meal-row veggie">
+            <span class="cat-label">Veggie</span>
+            <span class="meal-name" id="vName">${v}</span>
+          </div>
+        </div>`;
+    }
+
+    function buildSpecialHTML(meal) {
+      return `
+        <div class="special-display">
+          <span class="cat-label">Tonight's Special</span>
+          <span class="meal-name" id="specialName">${meal}</span>
+        </div>`;
+    }
+
+    function animateCombo(card, final, onDone) {
+      // Inject cycling placeholders
+      card.innerHTML = buildComboHTML(
+        pick(MENU.protein), pick(MENU.starch), pick(MENU.veggie)
+      );
+
+      const pEl = document.getElementById('pName');
+      const sEl = document.getElementById('sName');
+      const vEl = document.getElementById('vName');
+
+      [pEl, sEl, vEl].forEach(el => el.classList.add('cycling'));
+
+      let step = 0;
+      const iv = setInterval(() => {
+        pEl.textContent = pick(MENU.protein);
+        sEl.textContent = pick(MENU.starch);
+        vEl.textContent = pick(MENU.veggie);
+        step++;
+
+        if (step >= CYCLE_STEPS) {
+          clearInterval(iv);
+          pEl.textContent = final.protein;
+          sEl.textContent = final.starch;
+          vEl.textContent = final.veggie;
+          [pEl, sEl, vEl].forEach((el, i) => {
+            el.classList.remove('cycling');
+            setTimeout(() => el.classList.add('settled'), i * 70);
+          });
+          onDone();
+        }
+      }, CYCLE_DURATION / CYCLE_STEPS);
+    }
+
+    function animateSpecial(card, final, onDone) {
+      card.innerHTML = buildSpecialHTML(pick(MENU.other));
+      const el = document.getElementById('specialName');
+      el.classList.add('cycling');
+
+      let step = 0;
+      const iv = setInterval(() => {
+        el.textContent = pick(MENU.other);
+        step++;
+
+        if (step >= CYCLE_STEPS) {
+          clearInterval(iv);
+          el.textContent = final;
+          el.classList.remove('cycling');
+          el.classList.add('settled');
+          onDone();
+        }
+      }, CYCLE_DURATION / CYCLE_STEPS);
+    }
+
+    // Roll on first load
+    randomizeDinner();
+  </script>
+</body>
+</html>
